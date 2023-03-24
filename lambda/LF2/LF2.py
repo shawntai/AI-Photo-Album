@@ -13,6 +13,9 @@ INDEX = 'photos'
 # For Lex Bot
 client = boto3.client('lexv2-runtime')
 
+# write a function for hello world
+def helloworld():
+    print("Hello World")
 
 def lambda_handler(event, context):
     # Step 1: Get Query String from Frontend API call
@@ -25,9 +28,11 @@ def lambda_handler(event, context):
     print("Labels: ", labels)
     
     # Step 3: AND together the labels
-    labels_query = " + ".join(labels)
-    print("Labels query: ", labels_query)
-    results = opensearch_photo(labels_query)
+    results = None
+    if len(labels) != 0:
+        labels_query = " + ".join(labels)
+        print("Labels query: ", labels_query)
+        results = opensearch_photo(labels_query)
 
     return {
         'statusCode': 200,
@@ -48,27 +53,30 @@ def get_search_targets_from_Lex(query_string):
             localeId='en_US',
             sessionId='testuser',
             text=query_string)
-    #print("lex-response", response)
+    print("lex-response", response)
     
     labels = []
     slots = response['sessionState']['intent']['slots']
     print("slots", slots)
-    if slots['SearchTarget'] == None:
-        print("No photo collection for query {}".format(query))
-    else:
+    # check first slot 'SearchTarget' if resolvedValues exists
+    if slots['SearchTarget'] != None and 'resolvedValues' in slots['SearchTarget']['value'] and (len(slots['SearchTarget']['value']['resolvedValues']) > 0):
         labels.append(slots['SearchTarget']['value']['resolvedValues'][0])
-        if slots['SearchTarget2'] != None:
-            labels.append(slots['SearchTarget2']['value']['resolvedValues'][0])
-        if slots['SearchTarget3'] != None:
-            labels.append(slots['SearchTarget3']['value']['resolvedValues'][0])
+    if slots['SearchTarget2'] != None and 'resolvedValues' in slots['SearchTarget2']['value'] and (len(slots['SearchTarget2']['value']['resolvedValues']) > 0):
+        labels.append(slots['SearchTarget2']['value']['resolvedValues'][0])
+    if slots['SearchTarget3'] != None and 'resolvedValues' in slots['SearchTarget3']['value'] and (len(slots['SearchTarget3']['value']['resolvedValues']) > 0):
+        labels.append(slots['SearchTarget3']['value']['resolvedValues'][0])
     return labels
-
-    
-    return ["cat"]
 
 def opensearch_photo(labels):
     results = query(labels)
-    return results
+    img_paths = []
+    for result in results:
+        print(result['objectKey'])
+        bucket = result['bucket']
+        key = result['objectKey']
+        if key not in img_paths:
+            img_paths.append('https://'+bucket+'.s3.amazonaws.com/'+key)
+    return img_paths
 
 def query(term):
     q = {'size': 5, 'query': {'multi_match': {'query': term}}}
