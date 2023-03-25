@@ -13,10 +13,6 @@ INDEX = 'photos'
 # For Lex Bot
 client = boto3.client('lexv2-runtime')
 
-# write a function for hello world
-def helloworld():
-    print("Hello World")
-
 def lambda_handler(event, context):
     # Step 1: Get Query String from Frontend API call
     print('Received event2: ' + json.dumps(event))
