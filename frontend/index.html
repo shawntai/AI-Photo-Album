@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>Speech Recognition</title>
-		<script
+		<!-- <script
 			type="text/javascript"
 			src="apiGateway-js-sdk/lib/axios/dist/axios.standalone.js"
 		></script>
@@ -45,13 +45,17 @@
 		<script
 			type="text/javascript"
 			src="apiGateway-js-sdk/apigClient.js"
-		></script>
+		></script> -->
 	</head>
 
 	<body>
 		<h1>Speech Recognition</h1>
 		<button id="record">Start Recording</button>
 		<input type="text" id="transcript" />
+		<button id="search">Search</button>
+		<div id="results"></div>
+		<div style="clear: both"></div>
+
 		<h1>Upload Photos</h1>
 		<input type="file" id="file" name="file" />
 		<input

@@ -1,6 +1,8 @@
 // solve: Uncaught ReferenceError: apigClientFactory is not defined at index.js:5:20
 // const apigClientFactory = require("./apiGateway-js-sdk/apigClient").default;
-const apigClient = apigClientFactory.newClient();
+// const apigClient = apigClientFactory.newClient();
+
+const API_URL = "https://1rup48u854.execute-api.us-east-1.amazonaws.com/v1";
 
 const recordButton = document.querySelector("#record");
 const transcriptInput = document.querySelector("#transcript");
@@ -39,6 +41,32 @@ recordButton.addEventListener("click", () => {
 	isRecording = !isRecording;
 });
 
+const searchButton = document.querySelector("#search");
+searchButton.addEventListener("click", () => {
+	const transcript = transcriptInput.value;
+	console.log(transcript);
+	// make a get call to this url ${API_URL}/search?q=${transcript} and print the response body
+	fetch(`${API_URL}/search?q=${transcript}`, {
+		method: "GET",
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			console.log(data);
+			const results = document.querySelector("#results");
+			results.innerHTML = "";
+			data.results.forEach((item) => {
+				const div = document.createElement("div");
+				const img = document.createElement("img");
+				img.style.height = "200px";
+				img.style.float = "left";
+				img.style.margin = "5px";
+				img.src = item;
+				div.appendChild(img);
+				results.appendChild(div);
+			});
+		});
+});
+
 const uploadButton = document.querySelector("#upload");
 uploadButton.addEventListener("click", () => {
 	const file = document.querySelector("#file").files[0];
@@ -66,8 +94,10 @@ uploadButton.addEventListener("click", () => {
 		reader.onload = () => {
 			// const base64Img = btoa(event.target.result);
 			// console.log(base64Img);
+			console.log(reader.result);
 			fetch(
-				"https://1rup48u854.execute-api.us-east-1.amazonaws.com/v1/upload",
+				`${API_URL}/upload`,
+				// "https://we08oh48pc.execute-api.us-east-1.amazonaws.com/v1/upload",
 				{
 					method: "PUT",
 					headers: {
@@ -79,11 +109,17 @@ uploadButton.addEventListener("click", () => {
 					body: reader.result,
 				}
 			)
+				// fetch(
+				// 	"https://1rup48u854.execute-api.us-east-1.amazonaws.com/v1/status",
+				// 	{
+				// 		method: "GET",
+				// 	}
+				// )
 				.then((response) => {
 					console.log(response);
 				})
-				.catch((error) => {
-					console.log(error);
+				.catch((err) => {
+					console.log(err);
 				});
 
 			// 	// apigClient
