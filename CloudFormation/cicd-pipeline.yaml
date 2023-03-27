@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CS6998 HW2
+Resources:
+  # create lambda execution role with s3 read/write permissions
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      # RoleName: !Sub ${AWS::StackName}-LambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource: arn:aws:s3:::*
+  # LambdaFunction:
+  #   Type: AWS::Lambda::Function
+  #   Properties:
+  #     FunctionName: "CF generate lambda"
+  #     Code:
+  #       ZipFile: |
+  #         exports.handler = function(event, context, callback) {
+  #           console.log('Not hello World');
+  #           callback(null, 'Hello World');
+  #         };
+  #     Handler: index.handler
+  #     Role: !GetAtt LambdaExecutionRole.Arn
+  #     Runtime: nodejs12.x
+  #     Timeout: 300
