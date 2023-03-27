@@ -35,6 +35,7 @@ recordButton.addEventListener("click", () => {
 		recognition.stop();
 		recordButton.textContent = "Start Recording";
 	} else {
+		finalTranscript = "";
 		recognition.start();
 		recordButton.textContent = "Stop Recording";
 	}
