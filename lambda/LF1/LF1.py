@@ -17,7 +17,9 @@ def lambda_handler(event, context):
     )
     detected_labels = [label["Name"] for label in rekognition_response["Labels"]]
     head_object = s3.head_object(Bucket=bucket, Key=key)
-    custom_labels = head_object["Metadata"]["customlabels"].split(",")
+    custom_labels = []
+    if "customlabels" in head_object["Metadata"]:
+        custom_labels = head_object["Metadata"]["customlabels"].split(",")
     os_object = {
         "objectKey": key,
         "bucket": bucket,
