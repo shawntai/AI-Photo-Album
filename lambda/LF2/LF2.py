@@ -27,11 +27,23 @@ def lambda_handler(event, context):
     print("Labels: ", labels)
 
     # Step 3: AND together the labels
+    #results = None
+    #if len(labels) != 0:
+        #labels_query = " + ".join(labels)
+        #print("Labels query: ", labels_query)
+        #results = opensearch_photo(labels_query)
+    
+    # Step 3: search by each labels and AND the results
+    # try to have 5+ results
     results = None
+    initial_take_for_each_label = 20
     if len(labels) != 0:
-        labels_query = " + ".join(labels)
-        print("Labels query: ", labels_query)
-        results = opensearch_photo(labels_query)
+        for label in labels:
+            temp_results = opensearch_photo(label, initial_take_for_each_label)
+            if results == None:
+                results = temp_results
+            else:
+                results = list(set(results) & set(temp_results))
 
     return {
         "statusCode": 200,
@@ -59,6 +71,7 @@ def get_search_targets_from_Lex(query_string):
     slots = response["sessionState"]["intent"]["slots"]
     print("slots", slots)
     # check first slot 'SearchTarget' if resolvedValues exists
+    # since user may use CUSTOM_LABEL to search, we may use other than resolvedValues
     if (
         slots["SearchTarget"] != None
         and "resolvedValues" in slots["SearchTarget"]["value"]
@@ -80,8 +93,8 @@ def get_search_targets_from_Lex(query_string):
     return labels
 
 
-def opensearch_photo(labels):
-    results = query(labels)
+def opensearch_photo(labels, take=5):
+    results = query(labels, take)
     img_paths = []
     for result in results:
         print(result["objectKey"])
@@ -92,8 +105,8 @@ def opensearch_photo(labels):
     return img_paths
 
 
-def query(term):
-    q = {"size": 5, "query": {"multi_match": {"query": term}}}
+def query(term, take=5):
+    q = {"size": take, "query": {"multi_match": {"query": term}}}
 
     client = OpenSearch(
         hosts=[{"host": HOST, "port": 443}],
