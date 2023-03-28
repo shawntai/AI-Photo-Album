@@ -423,6 +423,96 @@ Resources:
           EncryptionDisabled: false
       Visibility: "PRIVATE"
 
+  LambdaPipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      Name: "p1-lambda"
+      RoleArn: !GetAtt IAMRole3.Arn
+      ArtifactStore:
+        Location: !Sub "codepipeline-${AWS::Region}-750324224034"
+        Type: "S3"
+      Stages:
+      - Name: "Source"
+        Actions:
+        - Name: "Source"
+          ActionTypeId:
+            Category: "Source"
+            Owner: "AWS"
+            Provider: "CodeStarSourceConnection"
+            Version: "1"
+          Configuration:
+            BranchName: "master"
+            ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/503dc0e8-4243-43c7-a163-0475edb99a17"
+            FullRepositoryId: "shawntai/cs6998-hw2"
+            OutputArtifactFormat: "CODE_ZIP"
+          OutputArtifacts:
+          - Name: "SourceArtifact"
+          Region: !Ref AWS::Region
+          Namespace: "SourceVariables"
+          RunOrder: 1
+      - Name: "Build"
+        Actions:
+        - Name: "Build"
+          ActionTypeId:
+            Category: "Build"
+            Owner: "AWS"
+            Provider: "CodeBuild"
+            Version: "1"
+          Configuration:
+            ProjectName: !Ref CodeBuildProject
+          InputArtifacts:
+          - Name: "SourceArtifact"
+          OutputArtifacts:
+          - Name: "BuildArtifact"
+          Region: !Ref AWS::Region
+          Namespace: "BuildVariables"
+          RunOrder: 1
+
+  S3Pipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      Name: "p2-s3"
+      RoleArn: !GetAtt IAMRole.Arn
+      ArtifactStore:
+        Location: !Sub "codepipeline-${AWS::Region}-750324224034"
+        Type: "S3"
+      Stages:
+      - Name: "Source"
+        Actions:
+        - Name: "Source"
+          ActionTypeId:
+            Category: "Source"
+            Owner: "AWS"
+            Provider: "CodeStarSourceConnection"
+            Version: "1"
+          Configuration:
+            BranchName: "master"
+            ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/503dc0e8-4243-43c7-a163-0475edb99a17"
+            FullRepositoryId: "shawntai/cs6998-hw2"
+            OutputArtifactFormat: "CODE_ZIP"
+          OutputArtifacts:
+          - Name: "SourceArtifact"
+          Region: !Ref AWS::Region
+          Namespace: "SourceVariables"
+          RunOrder: 1
+      - Name: "Build"
+        Actions:
+        - Name: "Build"
+          ActionTypeId:
+            Category: "Build"
+            Owner: "AWS"
+            Provider: "CodeBuild"
+            Version: "1"
+          Configuration:
+            ProjectName: !Ref CodeBuildProject2
+          InputArtifacts:
+          - Name: "SourceArtifact"
+          OutputArtifacts:
+          - Name: "BuildArtifact"
+          Region: !Ref AWS::Region
+          Namespace: "BuildVariables"
+          RunOrder: 1
+
   OpenSearchServiceDomain:
     Type: "AWS::OpenSearchService::Domain"
     Properties:

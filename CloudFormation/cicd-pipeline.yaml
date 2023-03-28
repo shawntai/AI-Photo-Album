@@ -2,34 +2,34 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: CS6998 HW2
 Resources:
   # create lambda execution role with s3 read/write permissions
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      # RoleName: !Sub ${AWS::StackName}-LambdaExecutionRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: LambdaExecutionPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
-              - Effect: Allow
-                Action:
-                  - s3:*
-                Resource: arn:aws:s3:::*
+  # LambdaExecutionRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     # RoleName: !Sub ${AWS::StackName}-LambdaExecutionRole
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:
+  #       - Effect: Allow
+  #         Principal:
+  #           Service:
+  #           - lambda.amazonaws.com
+  #         Action:
+  #         - sts:AssumeRole
+  #     Policies:
+  #     - PolicyName: LambdaExecutionPolicy
+  #       PolicyDocument:
+  #         Version: 2012-10-17
+  #         Statement:
+  #         - Effect: Allow
+  #           Action:
+  #           - logs:CreateLogGroup
+  #           - logs:CreateLogStream
+  #           - logs:PutLogEvents
+  #           Resource: arn:aws:logs:*:*:*
+  #         - Effect: Allow
+  #           Action:
+  #           - s3:*
+  #           Resource: arn:aws:s3:::*
   # LambdaFunction:
   #   Type: AWS::Lambda::Function
   #   Properties:
@@ -44,3 +44,57 @@ Resources:
   #     Role: !GetAtt LambdaExecutionRole.Arn
   #     Runtime: nodejs12.x
   #     Timeout: 300
+  OpenSearchServiceDomain:
+    Type: AWS::OpenSearchService::Domain
+    Properties:
+      DomainName: "photos"
+      EngineVersion: "OpenSearch_2.5"
+      ClusterConfig:
+        InstanceCount: 1
+        InstanceType: "t3.medium.search"
+      # AccessPolicies: !Sub '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":"*"},"Action":"es:*","Resource":"arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/photos/*"}]}'
+      EBSOptions:
+        EBSEnabled: true
+        VolumeType: "gp3"
+        VolumeSize: 10
+        Iops: 3000
+        Throughput: 125
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: "*"
+          Action: es:*
+          Resource: !Sub arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/photos/*
+      EncryptionAtRestOptions:
+        Enabled: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      CognitoOptions:
+        Enabled: false
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+        TLSSecurityPolicy: "Policy-Min-TLS-1-0-2019-07"
+        CustomEndpointEnabled: false
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: user
+          MasterUserPassword: Password123!
+
+
+      # ElasticsearchVersion: 7.4
+      # EBSOptions:
+      #   EBSEnabled: true
+      #   VolumeSize: 10
+      #   VolumeType: gp2
+      # SnapshotOptions:
+      #   AutomatedSnapshotStartHour: 0
+      # VPCOptions:
+      #   SubnetIds:
+      #     - !Ref Subnet1
+      #     - !Ref Subnet2
+      #   SecurityGroupIds:
+      #     - !Ref SecurityGroup

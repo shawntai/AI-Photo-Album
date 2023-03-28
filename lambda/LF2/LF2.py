@@ -7,6 +7,7 @@ from requests_aws4auth import AWS4Auth
 
 # For OpenSearch
 REGION = "us-east-1"
+# TODO: dynamically get the host url from aws
 HOST = "search-photos-h6kdzh5mvw5n65qyy5vjpfwv4q.us-east-1.es.amazonaws.com"
 INDEX = "photos"
 
