@@ -36,6 +36,7 @@ def lambda_handler(event, context):
     # Step 3: search by each labels and AND the results
     # try to have 5+ results
     results = None
+    backup = [] # pictures that only contain one label
     initial_take_for_each_label = 20
     if len(labels) != 0:
         for label in labels:
@@ -44,6 +45,9 @@ def lambda_handler(event, context):
                 results = temp_results
             else:
                 results = list(set(results) & set(temp_results))
+                backup.extend(list(set(temp_results) - set(results)))
+    if len(results) < 5:
+        results.extend(backup[:5-len(results)])
 
     return {
         "statusCode": 200,
