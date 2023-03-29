@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  Generator: "former2"
+Description: ""
+Resources:
+  LambdaFunction2:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: ""
+      FunctionName: "LF2gen"
+      Handler: "LF2.lambda_handler"
+      Architectures:
+      - "x86_64"
+      Code:
+        S3Bucket: "code-bucket-test-0329"
+        S3Key: !Sub "LF2-ebfff7c0-bcc0-4141-a850-78caa30e29ac.zip"
+      Role: !GetAtt IAMRole8.Arn
+      Runtime: "python3.9"
+      Timeout: 300
+
+  IAMRole8:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/service-role/"
+      RoleName: "LF2gen-role"
+      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+      MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - !Sub "arn:aws:iam::${AWS::AccountId}:policy/service-role/AWSLambdaBasicExecutionRole-3624a2b1-b419-4d5e-98be-c0b4db69c924"
+      - !Sub "arn:aws:iam::${AWS::AccountId}:policy/LambdaLexV2Policy"
+      - "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
+      - "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
