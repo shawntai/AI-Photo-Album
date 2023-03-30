@@ -600,40 +600,40 @@ Resources:
         Type: S3
         Location: !Ref AssetsBucket
       Stages:
-        # - Name: Source
-        #   Actions:
-        #     - Name: Source
-        #       ActionTypeId:
-        #         Category: Source
-        #         Owner: AWS
-        #         Version: 1
-        #         Provider: "CodeStarSourceConnection"
-        #       Configuration:
-        #         BranchName: "master"
-        #         ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/503dc0e8-4243-43c7-a163-0475edb99a17"
-        #         FullRepositoryId: "shawntai/cs6998-hw2"
-        #         OutputArtifactFormat: "CODE_ZIP"
-        #       OutputArtifacts:
-        #         - Name: "SourceArtifact"
-        #       Region: !Ref AWS::Region
-        #       Namespace: "SourceVariables"
-        #       RunOrder: 1
         - Name: Source
           Actions:
             - Name: Source
               ActionTypeId:
                 Category: Source
-                Owner: ThirdParty
+                Owner: AWS
                 Version: 1
-                Provider: GitHub
+                Provider: "CodeStarSourceConnection"
               Configuration:
-                Owner: shawntai
-                Repo: cs6998-hw2
-                Branch: master
-                OAuthToken: !Ref GitHubToken
+                BranchName: "master"
+                ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/503dc0e8-4243-43c7-a163-0475edb99a17"
+                FullRepositoryId: "shawntai/cs6998-hw2"
+                OutputArtifactFormat: "CODE_ZIP"
               OutputArtifacts:
-                - Name: SourceArtifact
+                - Name: "SourceArtifact"
+              Region: !Ref AWS::Region
+              Namespace: "SourceVariables"
               RunOrder: 1
+        # - Name: Source
+        #   Actions:
+        #     - Name: Source
+        #       ActionTypeId:
+        #         Category: Source
+        #         Owner: ThirdParty
+        #         Version: 1
+        #         Provider: GitHub
+        #       Configuration:
+        #         Owner: shawntai
+        #         Repo: cs6998-hw2
+        #         Branch: master
+        #         OAuthToken: !Ref GitHubToken
+        #       OutputArtifacts:
+        #         - Name: SourceArtifact
+        #       RunOrder: 1
         - Name: "Build"
           Actions:
             - Name: Build
