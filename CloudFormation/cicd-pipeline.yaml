@@ -1,5 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: CS6998 HW2
+Parameters:
+  GitHubToken:
+    Type: String
+
 Resources:
   LambdaFunction1:
     Type: "AWS::Lambda::Function"
@@ -35,11 +39,12 @@ Resources:
   FrontendS3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: "AES256"
-            BucketKeyEnabled: true
+      AccessControl: PublicRead
+      # BucketEncryption:
+      #   ServerSideEncryptionConfiguration:
+      #     - ServerSideEncryptionByDefault:
+      #         SSEAlgorithm: "AES256"
+      #       BucketKeyEnabled: true
       WebsiteConfiguration:
         IndexDocument: "index.html"
 
@@ -200,7 +205,7 @@ Resources:
         PassthroughBehavior: "WHEN_NO_MATCH"
         TimeoutInMillis: 29000
         Type: "AWS_PROXY"
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:$mar25OPTIONS/invocations"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:mar25OPTIONS/invocations"
 
   PutUploadMethod:
     Type: "AWS::ApiGateway::Method"
@@ -326,11 +331,22 @@ Resources:
       MaxSessionDuration: 3600
       ManagedPolicyArns:
         # - !Sub "arn:aws:iam::${AWS::AccountId}:policy/service-role/AWSLambdaBasicExecutionRole-7b40363f-accf-4ad1-a837-8ed9db75ec08"
-        # - "arn:aws:iam::aws:policy/serive-role/AWSLambdaBasicExecutionRole"
+        # - "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
         - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
         - "arn:aws:iam::aws:policy/AmazonRekognitionFullAccess"
         - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
         - "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
+      Policies:
+        - PolicyName: "cloudwatch-logs-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
 
   LF2Role:
     Type: "AWS::IAM::Role"
@@ -340,11 +356,22 @@ Resources:
       MaxSessionDuration: 3600
       ManagedPolicyArns:
         # - !Sub "arn:aws:iam::${AWS::AccountId}:policy/service-role/AWSLambdaBasicExecutionRole-3624a2b1-b419-4d5e-98be-c0b4db69c924"
-        # - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        # - "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
         - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
         - !Sub "arn:aws:iam::${AWS::AccountId}:policy/LambdaLexV2Policy"
         - "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
         - "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
+      Policies:
+        - PolicyName: "cloudwatch-logs-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
 
   APIGatewayS3ProxyRole:
     Type: "AWS::IAM::Role"
@@ -409,21 +436,27 @@ Resources:
                   - logs:PutLogEvents
               - Resource:
                   - !Sub arn:aws:s3:::${AssetsBucket}/*
+                  - !Sub arn:aws:s3:::${AssetsBucket}
                   - !Sub arn:aws:s3:::${FrontendS3Bucket}/*
                   - !Sub arn:aws:s3:::${FrontendS3Bucket}
                 Effect: Allow
                 Action:
-                  - s3:PutObject
-                  - s3:PutObjectAcl
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                  - s3:GetBucketVersioning
+                  # - s3:PutObject
+                  # - s3:PutObjectAcl
+                  # - s3:GetObject
+                  # - s3:GetObjectVersion
+                  # - s3:GetBucketVersioning
+                  - s3:*
               - Resource: "*"
                 Effect: Allow
                 Action:
                   - s3:ListAllMyBuckets
                   - s3:ListObjects
                   - lambda:*
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -444,16 +477,19 @@ Resources:
             Statement:
               - Resource:
                   - !Sub arn:aws:s3:::${AssetsBucket}/*
+                  - !Sub arn:aws:s3:::${AssetsBucket}
                   - !Sub arn:aws:s3:::${FrontendS3Bucket}/*
                   - !Sub arn:aws:s3:::${FrontendS3Bucket}
                 Effect: Allow
                 Action:
-                  - s3:PutObject
-                  - s3:PutObjectAcl
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                  - s3:GetBucketVersioning
-                  - s3:ListObjects
+                  # - s3:PutObject
+                  # - s3:PutObjectAcl
+                  # - s3:GetObject
+                  # - s3:GetObjectVersion
+                  # - s3:GetBucketVersioning
+                  # - s3:ListObjects
+                  # - s3:CreateObject
+                  - s3:*
               - Resource:
                   - arn:aws:s3:::*
                 Effect: Allow
@@ -469,6 +505,10 @@ Resources:
                 Effect: Allow
                 Action:
                   - lambda:*
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
 
   LambdaBuildBuild:
     Type: AWS::CodeBuild::Project
@@ -483,10 +523,32 @@ Resources:
             build:
               commands:
                 - echo build stage of lambda code build
+                - cd lambda/LF1
+                - pip3 install --target ./package requests-aws4auth opensearch-py
+                - cd package
+                - zip -r ../LF1.zip .
+                - cd ../
+                - zip LF1.zip LF1.py
+                - cd ../LF2
+                - pip3 install --target ./package requests-aws4auth opensearch-py
+                - cd package
+                - zip -r ../LF2.zip .
+                - cd ../
+                - zip LF2.zip LF2.py
+          artifacts:
+            files:
+              - lambda/LF1/LF1.zip
+              - lambda/LF2/LF2.zip
+
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/amazonlinux2-aarch64-standard:1.0"
         Type: "ARM_CONTAINER"
+        # EnvironmentVariables:
+        #   - Name: AWS_DEFAULT_REGION
+        #     Value: !Ref AWS::Region
+        #   - Name: PUBLIC_URL
+        #     Value: "/"
       Name: !Sub ${AWS::StackName}-lambda-build-build
       ServiceRole: !Ref CodeBuildServiceRole
 
@@ -502,24 +564,31 @@ Resources:
           phases:
             build:
               commands:
+                - echo deploy stage of lambda code build
+                - ls
                 - cd lambda/LF1
-                - pip3 install --target ./package requests-aws4auth opensearch-py
-                - cd package
-                - zip -r ../LF1.zip .
-                - cd ../
-                - zip LF1.zip LF1.py
-                - aws lambda update-function-code --function-name ${LambdaFunction1} --zip-file fileb://LF1.zip
+                # - pip3 install --target ./package requests-aws4auth opensearch-py
+                # - cd package
+                # - zip -r ../LF1.zip .
+                # - cd ../
+                # - zip LF1.zip LF1.py
+                - aws lambda update-function-code --function-name ${LambdaFunction1.Arn} --zip-file fileb://LF1.zip
                 - cd ../LF2
-                - pip3 install --target ./package requests-aws4auth opensearch-py
-                - cd package
-                - zip -r ../LF2.zip .
-                - cd ../
-                - zip LF2.zip LF2.py
-                - aws lambda update-function-code --function-name ${LambdaFunction2} --zip-file fileb://LF2.zip
+                # - pip3 install --target ./package requests-aws4auth opensearch-py
+                # - cd package
+                # - zip -r ../LF2.zip .
+                # - cd ../
+                # - zip LF2.zip LF2.py
+                - aws lambda update-function-code --function-name ${LambdaFunction2.Arn} --zip-file fileb://LF2.zip
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/amazonlinux2-aarch64-standard:1.0"
         Type: "ARM_CONTAINER"
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          # - Name: S3_CLIENT_BUCKET
+          #   Value: !Ref ClientBucket
       Name: !Sub ${AWS::StackName}-lambda-build-deploy
       ServiceRole: !Ref CodeBuildServiceRole
 
@@ -531,23 +600,39 @@ Resources:
         Type: S3
         Location: !Ref AssetsBucket
       Stages:
+        # - Name: Source
+        #   Actions:
+        #     - Name: Source
+        #       ActionTypeId:
+        #         Category: Source
+        #         Owner: AWS
+        #         Version: 1
+        #         Provider: "CodeStarSourceConnection"
+        #       Configuration:
+        #         BranchName: "master"
+        #         ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/503dc0e8-4243-43c7-a163-0475edb99a17"
+        #         FullRepositoryId: "shawntai/cs6998-hw2"
+        #         OutputArtifactFormat: "CODE_ZIP"
+        #       OutputArtifacts:
+        #         - Name: "SourceArtifact"
+        #       Region: !Ref AWS::Region
+        #       Namespace: "SourceVariables"
+        #       RunOrder: 1
         - Name: Source
           Actions:
             - Name: Source
               ActionTypeId:
                 Category: Source
-                Owner: AWS
+                Owner: ThirdParty
                 Version: 1
-                Provider: "CodeStarSourceConnection"
+                Provider: GitHub
               Configuration:
-                BranchName: "master"
-                ConnectionArn: !Sub "arn:aws:codestar-connections:${AWS::Region}:${AWS::AccountId}:connection/503dc0e8-4243-43c7-a163-0475edb99a17"
-                FullRepositoryId: "shawntai/cs6998-hw2"
-                OutputArtifactFormat: "CODE_ZIP"
+                Owner: shawntai
+                Repo: cs6998-hw2
+                Branch: master
+                OAuthToken: !Ref GitHubToken
               OutputArtifacts:
-                - Name: "SourceArtifact"
-              Region: !Ref AWS::Region
-              Namespace: "SourceVariables"
+                - Name: SourceArtifact
               RunOrder: 1
         - Name: "Build"
           Actions:
@@ -560,10 +645,10 @@ Resources:
               Configuration:
                 ProjectName: !Ref LambdaBuildBuild
               InputArtifacts:
-                - Name: "SourceArtifact"
+                - Name: SourceArtifact
               OutputArtifacts:
-                - Name: "BuildArtifact"
-              Region: !Ref AWS::Region
+                - Name: BuildArtifact
+              # Region: !Ref AWS::Region
               RunOrder: 1
         - Name: Deploy
           Actions:
@@ -576,8 +661,8 @@ Resources:
               Configuration:
                 ProjectName: !Ref LambdaBuildDeploy
               InputArtifacts:
-                - Name: "BuildArtifact"
-              Region: !Ref AWS::Region
+                - Name: BuildArtifact
+              # Region: !Ref AWS::Region
               RunOrder: 1
 
   OpenSearchServiceDomain:
