@@ -1,4 +1,4 @@
-pip3 install --target ./package requests-aws4auth opensearch-py
+pip3 install --target ./package requests-aws4auth opensearch-py inflection
 cd package
 zip -r ../LF2.zip .
 cd ../

@@ -1,5 +1,6 @@
 import json
 import os
+import inflection
 
 import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection
@@ -81,19 +82,13 @@ def get_search_targets_from_Lex(query_string):
         and "resolvedValues" in slots["SearchTarget"]["value"]
         and (len(slots["SearchTarget"]["value"]["resolvedValues"]) > 0)
     ):
-        labels.append(slots["SearchTarget"]["value"]["resolvedValues"][0])
+        labels.append(inflection.singularize(slots["SearchTarget"]["value"]["resolvedValues"][0]))
     if (
         slots["SearchTarget2"] != None
         and "resolvedValues" in slots["SearchTarget2"]["value"]
         and (len(slots["SearchTarget2"]["value"]["resolvedValues"]) > 0)
     ):
-        labels.append(slots["SearchTarget2"]["value"]["resolvedValues"][0])
-    if (
-        slots["SearchTarget3"] != None
-        and "resolvedValues" in slots["SearchTarget3"]["value"]
-        and (len(slots["SearchTarget3"]["value"]["resolvedValues"]) > 0)
-    ):
-        labels.append(slots["SearchTarget3"]["value"]["resolvedValues"][0])
+        labels.append(inflection.singularize(slots["SearchTarget2"]["value"]["resolvedValues"][0]))
     return labels
 
 
