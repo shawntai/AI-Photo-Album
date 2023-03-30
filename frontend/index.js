@@ -104,7 +104,7 @@ uploadButton.addEventListener("click", () => {
 					method: "PUT",
 					headers: {
 						"Content-Type": file.type,
-						bucket: "cs6998-hw2-b2",
+						bucket: "cs6998-hw2-stack-imagess3bucket-74agfgc7zwro",
 						key: fileName,
 						"x-amz-meta-customLabels": customLabelsValue,
 					},
