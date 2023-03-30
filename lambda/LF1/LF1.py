@@ -6,7 +6,7 @@ from requests_aws4auth import AWS4Auth
 
 
 def lambda_handler(event, context):
-    print("LF1 triggered")
+    print("LF1 triggered!")
     print(event)
     s3 = boto3.client("s3")
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
