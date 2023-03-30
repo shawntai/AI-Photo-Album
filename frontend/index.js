@@ -2,7 +2,8 @@
 // const apigClientFactory = require("./apiGateway-js-sdk/apigClient").default;
 // const apigClient = apigClientFactory.newClient();
 
-const API_URL = "https://1rup48u854.execute-api.us-east-1.amazonaws.com/v1";
+// const API_URL = "https://1rup48u854.execute-api.us-east-1.amazonaws.com/v1";
+const API_URL = "https://7a32l4znb7.execute-api.us-east-1.amazonaws.com/v1";
 
 const recordButton = document.querySelector("#record");
 const transcriptInput = document.querySelector("#transcript");
