@@ -87,6 +87,24 @@ Resources:
             Function: !GetAtt LambdaFunction1.Arn
     # Function: "arn:aws:lambda:us-east-1:595480764624:function:cs6998-hw2-stack-LambdaFunction1-DHcyc91RIJnk"
 
+  ImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        # Id: PublicWebsitePolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: ImagesBucketPolicyStatement
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Join
+              - ""
+              - - "arn:aws:s3:::"
+                - !Ref ImagesS3Bucket
+                - /*
+      Bucket: !Ref ImagesS3Bucket
+
   AssetsBucket:
     Type: AWS::S3::Bucket
 

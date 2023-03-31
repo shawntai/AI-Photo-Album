@@ -50,6 +50,9 @@ searchButton.addEventListener("click", () => {
 	// make a get call to this url ${API_URL}/search?q=${transcript} and print the response body
 	fetch(`${API_URL}/search?q=${transcript}`, {
 		method: "GET",
+		headers: {
+			"x-api-key": "bojackhorsemanpeanutbutter",
+		},
 	})
 		.then((response) => response.json())
 		.then((data) => {
