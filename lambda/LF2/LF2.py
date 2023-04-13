@@ -42,13 +42,14 @@ def lambda_handler(event, context):
     if len(labels) != 0:
         for label in labels:
             temp_results = opensearch_photo(label, initial_take_for_each_label)
-            if results == None:
-                results = temp_results
-            else:
-                results = list(set(results) & set(temp_results))
-                backup.extend(list(set(temp_results) - set(results)))
-    if len(results) < 5:
-        results.extend(backup[:5-len(results)])
+            results.extend(temp_results)
+    #         if results == None:
+    #             results = temp_results
+    #         else:
+    #             results = list(set(results) & set(temp_results))
+    #             backup.extend(list(set(temp_results) - set(results)))
+    # if len(results) < 5:
+    #     results.extend(backup[:5-len(results)])
 
     return {
         "statusCode": 200,
