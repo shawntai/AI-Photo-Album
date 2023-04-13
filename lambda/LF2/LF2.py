@@ -36,7 +36,7 @@ def lambda_handler(event, context):
     
     # Step 3: search by each labels and AND the results
     # try to have 5+ results
-    results = None
+    results = []
     backup = [] # pictures that only contain one label
     initial_take_for_each_label = 20
     if len(labels) != 0:
