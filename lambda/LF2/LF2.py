@@ -18,7 +18,7 @@ client = boto3.client("lexv2-runtime")
 
 def lambda_handler(event, context):
     # Step 1: Get Query String from Frontend API call
-    print("Hello from LF2!")
+    print("Hello from LF2")
     print("Received event2: " + json.dumps(event))
     query_string = event["queryStringParameters"]["q"]
     print("Received query string: " + query_string)
